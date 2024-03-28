@@ -15,7 +15,7 @@ let htmlResponse;
 
 beforeAll(async () => {
   const htmlExampleFilePath = path.join(__dirname, '..', '__fixtures__', 'example.html');
-  htmlResponse = await fs.readFile(htmlExampleFilePath, 'utf-8');
+  htmlResponse = await readFile(htmlExampleFilePath, 'utf-8');
 
   nock(/.*/)
     .get('/')
@@ -43,12 +43,11 @@ afterEach(async () => {
 
 // Positive cases
 test('App run: link provided, default directory (no option)', async () => {
-  // Excpect that result of function is a file with a proper content
   const exampleUrl = 'https://ru.hexlet.io/courses';
   const exampleFileName = 'ru-hexlet-io-courses.html';
 
   const loadedPage = pageLoader(exampleUrl);
-  const loadedPageContent = await fs.readFile(path.join(tempDir, exampleFileName));
+  const loadedPageContent = await readFile(path.join(tempDir, exampleFileName));
 
   expect(loadedPageContent).toEqual(htmlResponse);
 });
