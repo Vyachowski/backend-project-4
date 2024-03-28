@@ -2,11 +2,27 @@
   "name": "backend-project-4",
   "version": "1.0.0",
   "description": "[![Actions Status](https://github.com/Vyachowski/backend-project-4/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/Vyachowski/backend-project-4/actions)",
+  "bin": {
+    "page-loader": "bin/pageLoader.js"
+  },
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["JS", "Async", ""],
+  "keywords": [
+    "js",
+    "async",
+    "web-parser",
+    "testing"
+  ],
   "author": "Slava Haikin",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.8",
+    "commander": "^12.0.0"
+  },
+  "devDependencies": {
+    "nock": "^13.5.4"
+  }
 }

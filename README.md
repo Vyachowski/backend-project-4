@@ -1,4 +1,4 @@
-# Hexlet JS Project – Web pages saver
+# Hexlet College Project – Web pages saver
 
 **In english** | [По русски](README_ru.md)
 

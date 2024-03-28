@@ -1,6 +1,6 @@
-# Hexlet JS Проект – Сохранятор веб-страниц
+# Проект "Хекслет колледж" – CLI прложение для сохранения веб-страниц
 
-**На английском** | [In English](README.md)
+**На русском** | [In English](README.md)
 
 ### Статус тестов и линтера Hexlet:
 [![Actions Status](https://github.com/Vyachowski/backend-project-4/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/Vyachowski/backend-project-4/actions)
@@ -62,8 +62,6 @@ npm remove -g @hexlet/code
 ```sh
 make gendiff [путьКФайлу1] [путьКФайлу2]
 ```
-
-___
 
 ___
 
