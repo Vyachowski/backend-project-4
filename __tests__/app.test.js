@@ -1,11 +1,10 @@
 import { readFile, mkdtemp, rm } from 'node:fs/promises';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import path, { dirname } from 'path';
 import nock from 'nock';
-import path from 'path';
 import os from 'os';
 
-import pageLoader from '../src/index.js'
+import pageLoader from '../src/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -53,8 +52,8 @@ const exampleNonExistingFileName = 'ru-hexlet-io-404.html';
 
 // Positive cases
 test('App run: link provided, default directory (no option)', async () => {
-  const loadedPage = pageLoader(exampleUrl);
-  const loadedPageContent = await readFile(path.join(process.cwd(), exampleFileName));
+  const loadedPage = pageLoader(exampleNonExistingUrl);
+  const loadedPageContent = await readFile(path.join(process.cwd(), exampleNonExistingFileName));
 
   expect(loadedPageContent).toEqual(htmlResponse);
 });
@@ -74,7 +73,7 @@ test('App run: link provided, existing test directory', async () => {
 });
 
 test('App run: link provided, non-existing directory inside test dir', async () => {
-  const innerFolderPath = path.join(tempDir, 'inner_folder')
+  const innerFolderPath = path.join(tempDir, 'inner_folder');
   const loadedPage = pageLoader(exampleUrl, innerFolderPath);
   const loadedPageContent = await readFile(path.join(innerFolderPath, exampleFileName));
 

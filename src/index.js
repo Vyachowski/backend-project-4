@@ -1,3 +1,5 @@
-const pageLoader = (url, outputDirPath) => 'Kurwa';
+const pageLoader = (url, outputDirPath) => {
+
+};
 
 export default pageLoader;
