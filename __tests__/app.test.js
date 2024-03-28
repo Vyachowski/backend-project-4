@@ -47,11 +47,19 @@ afterEach(async () => {
 
 // Common variables
 const exampleUrl = 'https://ru.hexlet.io/courses';
-const exampleNonExistingUrl = 'https://ru.hexlet.io/404';
 const exampleFileName = 'ru-hexlet-io-courses.html';
+const exampleNonExistingUrl = 'https://ru.hexlet.io/404';
+const exampleNonExistingFileName = 'ru-hexlet-io-404.html';
 
 // Positive cases
 test('App run: link provided, default directory (no option)', async () => {
+  const loadedPage = pageLoader(exampleUrl);
+  const loadedPageContent = await readFile(path.join(process.cwd(), exampleFileName));
+
+  expect(loadedPageContent).toEqual(htmlResponse);
+});
+
+test('App run: 404 link provided, default directory (no option)', async () => {
   const loadedPage = pageLoader(exampleUrl);
   const loadedPageContent = await readFile(path.join(process.cwd(), exampleFileName));
 
