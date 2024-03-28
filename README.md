@@ -6,7 +6,7 @@
 [![Actions Status](https://github.com/Vyachowski/backend-project-4/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/Vyachowski/backend-project-4/actions)
 
 ![Cover image for project](cover.png)
-The project is intended for practicing asynchronous JavaScript and working with promises, writing tests and parsing web pages.
+The project is intended for practicing asynchronous JavaScript and working with promises, writing tests (and, moreover, test-driven development) and parsing web pages.
 
 ## Description
 
