@@ -18,8 +18,12 @@ beforeAll(async () => {
   htmlResponse = await readFile(htmlExampleFilePath, 'utf-8');
 
   nock(/.*/)
+    .get('/404')
+    .reply(404, htmlResponse);
+
+  nock(/.*/)
     .get('/')
-    .reply(200, htmlResponse)
+    .reply(200, htmlResponse);
 });
 
 afterAll(async () => {
@@ -41,23 +45,32 @@ afterEach(async () => {
   }
 });
 
+// Common variables
+const exampleUrl = 'https://ru.hexlet.io/courses';
+const exampleNonExistingUrl = 'https://ru.hexlet.io/404';
+const exampleFileName = 'ru-hexlet-io-courses.html';
+
 // Positive cases
 test('App run: link provided, default directory (no option)', async () => {
-  const exampleUrl = 'https://ru.hexlet.io/courses';
-  const exampleFileName = 'ru-hexlet-io-courses.html';
-
   const loadedPage = pageLoader(exampleUrl);
-  const loadedPageContent = await readFile(path.join(tempDir, exampleFileName));
+  const loadedPageContent = await readFile(path.join(process.cwd(), exampleFileName));
 
   expect(loadedPageContent).toEqual(htmlResponse);
 });
 
 test('App run: link provided, existing test directory', async () => {
+  const loadedPage = pageLoader(exampleUrl, tempDir);
+  const loadedPageContent = await readFile(path.join(tempDir, exampleFileName));
 
+  expect(loadedPageContent).toEqual(htmlResponse);
 });
 
 test('App run: link provided, non-existing directory inside test dir', async () => {
+  const innerFolderPath = path.join(tempDir, 'inner_folder')
+  const loadedPage = pageLoader(exampleUrl, innerFolderPath);
+  const loadedPageContent = await readFile(path.join(innerFolderPath, exampleFileName));
 
+  expect(loadedPageContent).toEqual(htmlResponse);
 });
 
 // Negative cases
