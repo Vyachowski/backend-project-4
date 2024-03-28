@@ -4,8 +4,8 @@
 
 ### Статус тестов и линтера Hexlet:
 [![Actions Status](https://github.com/Vyachowski/backend-project-4/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/Vyachowski/backend-project-4/actions)
-[![Maintainability](https://api.codeclimate.com/v1/badges/a38d9132b2a3a9f5e500ddb484db748bf330b1a2a75090d603a7af549a6641f8/maintainability)](https://codeclimate.com/github/Vyachowski/backend-project-4/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/a38d9132b2a3a9f5e500ddb484db748bf330b1a2a75090d603a7af549a6641f8/test_coverage)](https://codeclimate.com/github/Vyachowski/backend-project-4/test_coverage)
+[![Maintainability](https://api.codeclimate.com/v1/badges/6466423d05eea596cd5d/maintainability)](https://codeclimate.com/github/Vyachowski/backend-project-4/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/6466423d05eea596cd5d/test_coverage)](https://codeclimate.com/github/Vyachowski/backend-project-4/test_coverage)
 
 ![Изображение для обложки проекта](cover.png)
 
