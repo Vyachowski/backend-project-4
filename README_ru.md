@@ -59,24 +59,21 @@ npm remove -g @hexlet/code
 
 ### Запуск программы
 
-Вы можете запустить проект с помощью:
+Вы можете запустить проект с помощью из командной строки (если вы выполнили make link):
 
 ```sh
-make gendiff [путьКФайлу1] [путьКФайлу2]
+page-loader <url> [output dir]
 ```
 
+Или с помощью make команды (если вы НЕ выполнили make link):
+
+```sh
+make run url=https://example.com dir=/temp/
+```
 ___
 
 ### Демонстрация проекта
 
-#### CLI Gendiff
+#### CLI Page Loader
 
 [![asciicast](https://asciinema.org/a/622629.svg)](https://asciinema.org/a/622629)
-
-#### Показать разницу между JSON в формате по умолчанию
-
-[![asciicast](https://asciinema.org/a/622632.svg)](https://asciinema.org/a/622632)
-
-#### Показать разницу между JSON с параметрами
-
-[![asciicast](https://asciinema.org/a/622633.svg)](https://asciinema.org/a/622633)

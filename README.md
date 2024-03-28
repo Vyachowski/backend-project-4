@@ -41,36 +41,31 @@ npm ci
 ```
 * And than execute
 ```sh
-npm link
+make link
 ```
 to run project via command line easily
 * After your work with a project you can perform
 ```sh
-npm remove -g @hexlet/code
+make unlink
 ```
 to uninstall package from the npm global dependencies
 
 ### Executing program
 
-You can run the project with:
+You can run the project directly from the command line (if you linked it before):
 ```sh
-make gendiff [filePath1] [filePath2]
+page-loader <url> [output dir]
 ```
 
-___
+or with make command (if you didn't link it):
+```sh
+make run url=https://example.com dir=/temp/
+```
 
 ___
 
 ### Project demo
 
-#### CLI of Gendiff
+#### CLI of Page Loader
 
 [![asciicast](https://asciinema.org/a/622629.svg)](https://asciinema.org/a/622629)
-
-#### Show difference between JSON in default format
-
-[![asciicast](https://asciinema.org/a/622632.svg)](https://asciinema.org/a/622632)
-
-#### Show difference between JSON with options
-
-[![asciicast](https://asciinema.org/a/622633.svg)](https://asciinema.org/a/622633)

@@ -2,7 +2,7 @@
 install:
 	npm ci
 run:
-	bin/pageLoader.js
+	bin/pageLoader.js $(url) $(dir)
 # Linter actions
 lint:
 	npx eslint . --fix
