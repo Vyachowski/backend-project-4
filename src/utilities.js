@@ -26,4 +26,4 @@ export {
   isValidUrl,
   generateFileNameFromUrl,
   generateFilePath,
-}
+};

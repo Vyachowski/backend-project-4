@@ -41,7 +41,7 @@ const pageLoader = (url, outputDirPath) => {
   const filePath = generateFilePath(outputDirPath, generateFileNameFromUrl(url));
   return fetchHtmlPage(url)
     .then((data) => saveHtmlPage(filePath, data))
-    .then((outputPath) => `Page was successfully downloaded into '${outputPath}'`);
+    .then((outputPath) => outputPath);
 };
 
 export default pageLoader;
