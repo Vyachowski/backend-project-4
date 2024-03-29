@@ -12,11 +12,11 @@ test('Validate URL: non-string format', () => {
   expect(isValidUrl([])).toBe(false);
 });
 
-test('Validate URL: invalid url', () => {
+test('Validate URL: invalid url(no first level domain)', () => {
   expect(isValidUrl('http://example')).toBe(false);
 });
 
-test('Validate URL: invalid url', () => {
+test('Validate URL: invalid url(excess chars)', () => {
   expect(isValidUrl('example,.com')).toBe(false);
 });
 

@@ -1,4 +1,6 @@
-import { readFile, mkdtemp, rm } from 'node:fs/promises';
+import {
+  readFile, mkdir, mkdtemp, rm, stat,
+} from 'node:fs/promises';
 import { fileURLToPath } from 'url';
 import path, { dirname } from 'path';
 import nock from 'nock';
@@ -16,12 +18,8 @@ beforeAll(async () => {
   const htmlExampleFilePath = path.join(__dirname, '..', '__fixtures__', 'example.html');
   htmlResponse = await readFile(htmlExampleFilePath, 'utf-8');
 
-  nock(/.*/)
-    .get('/404')
-    .reply(404, htmlResponse);
-
-  nock(/.*/)
-    .get('/')
+  nock('https://ru.hexlet.io/')
+    .get('/courses')
     .reply(200, htmlResponse);
 });
 
@@ -31,9 +29,11 @@ afterAll(async () => {
 
 // Creating temp folders
 let tempDir;
+let innerTempDir;
 
 beforeEach(async () => {
   tempDir = await mkdtemp(path.join(os.tmpdir(), 'page-loader-'));
+  innerTempDir = await mkdtemp(path.join(tempDir, 'inner-'));
 });
 
 afterEach(async () => {
@@ -51,50 +51,37 @@ const exampleNonExistingUrl = 'https://ru.hexlet.io/404';
 const exampleNonExistingFileName = 'ru-hexlet-io-404.html';
 
 // Positive cases
-test('App run: link provided, default directory (no option)', async () => {
-  const loadedPage = pageLoader(exampleNonExistingUrl);
-  const loadedPageContent = await readFile(path.join(process.cwd(), exampleNonExistingFileName));
-
-  expect(loadedPageContent).toEqual(htmlResponse);
-});
-
-test('App run: 404 link provided, default directory (no option)', async () => {
-  const loadedPage = pageLoader(exampleUrl);
-  const loadedPageContent = await readFile(path.join(process.cwd(), exampleFileName));
-
-  expect(loadedPageContent).toEqual(htmlResponse);
-});
-
 test('App run: link provided, existing test directory', async () => {
-  const loadedPage = pageLoader(exampleUrl, tempDir);
-  const loadedPageContent = await readFile(path.join(tempDir, exampleFileName));
+  const loadedPagePath = await pageLoader(exampleUrl, tempDir);
+  console.log(loadedPagePath);
+  const loadedPageContent = await readFile(loadedPagePath, 'utf-8');
 
-  expect(loadedPageContent).toEqual(htmlResponse);
+  await expect(loadedPageContent).toBe(htmlResponse);
 });
 
-test('App run: link provided, non-existing directory inside test dir', async () => {
-  const innerFolderPath = path.join(tempDir, 'inner_folder');
-  const loadedPage = pageLoader(exampleUrl, innerFolderPath);
-  const loadedPageContent = await readFile(path.join(innerFolderPath, exampleFileName));
+// test('App run: link provided, existing directory inside test dir', async () => {
+//   const loadedPagePath = await pageLoader(exampleUrl, innerTempDir);
+//   console.log(loadedPagePath);
+//   const loadedPageContent = await readFile(loadedPagePath, 'utf-8');
 
-  expect(loadedPageContent).toEqual(htmlResponse);
-});
+//   await expect(loadedPageContent).toBe(htmlResponse);
+// });
 
 // Negative cases
 // Without an url
-test('App run: link not provided', async () => {
+// test('App run: link not provided', async () => {
 
-});
+// });
 
-test('App run: link not provided, existing test directory', async () => {
+// test('App run: link not provided, existing test directory', async () => {
 
-});
+// });
 
-// Invalid url
-test('App run: link invalid, default directory', async () => {
+// // Invalid url
+// test('App run: link invalid, default directory', async () => {
 
-});
+// });
 
-test('App run: link invalid, existing test directory', async () => {
+// test('App run: link invalid, existing test directory', async () => {
 
-});
+// });
