@@ -2,29 +2,12 @@ import { writeFile } from 'node:fs/promises';
 import validPath from 'valid-path';
 import { homedir } from 'os';
 import axios from 'axios';
-import path from 'path';
 
-const isValidUrl = (urlString) => {
-  const urlPattern = new RegExp('^(https?:\\/\\/)?'
-        + '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'
-        + '((\\d{1,3}\\.){3}\\d{1,3}))' //
-        + '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'
-        + '(\\?[;&a-z\\d%_.~+=-]*)?'
-        + '(\\#[-a-z\\d_]*)?$', 'i');
-  return !!urlPattern.test(urlString);
-};
-
-const generateFileNameFromUrl = (url) => {
-  if (typeof url !== 'string') {
-    throw new Error('Not a valid url string');
-  }
-
-  const urlWithoutProtocol = url.replace(/^(https?:\/\/)?/, '');
-  const symbolsReplacedUrl = urlWithoutProtocol.replace(/[^a-zA-Z0-9]/g, '-');
-  return `${symbolsReplacedUrl}.html`;
-};
-
-const generateFilePath = (dirPath, filePath) => path.join(dirPath, filePath);
+import {
+  isValidUrl,
+  generateFileNameFromUrl,
+  generateFilePath,
+} from './utilities.js';
 
 const fetchHtmlPage = (url) => axios
   .get(url)
