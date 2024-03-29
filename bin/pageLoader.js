@@ -4,9 +4,9 @@ import pageLoader from '../src/index.js';
 
 const app = (url, { output }) => {
   try {
-    console.log(pageLoader(url, output));
-  } catch (error) {
-    console.error(error.message);
+    pageLoader(url, output).then((message) => console.log(message));
+  } catch(error) {
+    console.error(`\x1b[33m ${error.message}\x1b[0m`);
   }
 };
 
