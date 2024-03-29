@@ -26,7 +26,7 @@ const generateFileNameFromUrl = (url) => {
 
 const generateFilePath = (dirPath, filePath) => path.join(dirPath, filePath);
 
-const fetchPage = (url) => {
+const fetchHtmlPage = (url) => {
   return axios
     .get(url)
     .then(res => {
@@ -44,7 +44,7 @@ const fetchPage = (url) => {
     });
 };
 
-const savePage = (outputPath, data) => {
+const saveHtmlPage = (outputPath, data) => {
   writeFile(outputPath, data);
   return outputPath;
 }
@@ -58,8 +58,8 @@ const pageLoader = (url, outputDirPath) => {
   }
 
   const filePath = generateFilePath(outputDirPath, generateFileNameFromUrl(url));
-  return fetchPage(url)
-    .then((data) => savePage(filePath, data))
+  return fetchHtmlPage(url)
+    .then((data) => saveHtmlPage(filePath, data))
     .then((path) => `Page was successfully downloaded into '${path}'`);
 };
 
