@@ -5,13 +5,13 @@ import axios from 'axios';
 import path from 'path';
 
 const isValidUrl = (urlString) => {
-    var urlPattern = new RegExp('^(https?:\\/\\/)?' +
-        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
-        '((\\d{1,3}\\.){3}\\d{1,3}))' + //
-        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
-        '(\\?[;&a-z\\d%_.~+=-]*)?' +
-        '(\\#[-a-z\\d_]*)?$', 'i');
-    return !!urlPattern.test(urlString);
+  const urlPattern = new RegExp('^(https?:\\/\\/)?'
+        + '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'
+        + '((\\d{1,3}\\.){3}\\d{1,3}))' //
+        + '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'
+        + '(\\?[;&a-z\\d%_.~+=-]*)?'
+        + '(\\#[-a-z\\d_]*)?$', 'i');
+  return !!urlPattern.test(urlString);
 };
 
 const generateFileNameFromUrl = (url) => {
@@ -26,28 +26,26 @@ const generateFileNameFromUrl = (url) => {
 
 const generateFilePath = (dirPath, filePath) => path.join(dirPath, filePath);
 
-const fetchHtmlPage = (url) => {
-  return axios
-    .get(url)
-    .then(res => {
-      if (!res.data) {
-        throw new Error('This page doesn\'t exist. Please try another url.')
-      }
+const fetchHtmlPage = (url) => axios
+  .get(url)
+  .then((res) => {
+    if (!res.data) {
+      throw new Error('This page doesn\'t exist. Please try another url.');
+    }
 
-      const contentStart = res.data.trim().toLowerCase().substring(0, 15);
+    const contentStart = res.data.trim().toLowerCase().substring(0, 15);
 
-      if (!contentStart.includes('<!doctype html>') && !contentStart.includes('<html>')) {
-        throw new Error('The fetched content is not an HTML document.');
-      }
+    if (!contentStart.includes('<!doctype html>') && !contentStart.includes('<html>')) {
+      throw new Error('The fetched content is not an HTML document.');
+    }
 
-      return res.data;
-    });
-};
+    return res.data;
+  });
 
 const saveHtmlPage = (outputPath, data) => {
   writeFile(outputPath, data);
   return outputPath;
-}
+};
 
 const pageLoader = (url, outputDirPath) => {
   if (typeof url !== 'string' || !isValidUrl(url)) {
@@ -60,7 +58,7 @@ const pageLoader = (url, outputDirPath) => {
   const filePath = generateFilePath(outputDirPath, generateFileNameFromUrl(url));
   return fetchHtmlPage(url)
     .then((data) => saveHtmlPage(filePath, data))
-    .then((path) => `Page was successfully downloaded into '${path}'`);
+    .then((outputPath) => `Page was successfully downloaded into '${outputPath}'`);
 };
 
 export default pageLoader;

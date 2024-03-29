@@ -5,7 +5,7 @@ import pageLoader from '../src/index.js';
 const app = (url, { output }) => {
   try {
     pageLoader(url, output).then((message) => console.log(message));
-  } catch(error) {
+  } catch (error) {
     console.error(`\x1b[33m ${error.message}\x1b[0m`);
   }
 };
