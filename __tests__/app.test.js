@@ -79,11 +79,12 @@ describe('Page loader functional testing', () => {
     await expect(loadedPageContent).toBe(expectedHtml);
   });
 
-  // Negative cases
-  // Without an url
-  // test('App run: link not provided', async () => {
+  test('App run: link not provided', async () => {
+    const testUrl = null;
+    const { tempDir } = tempData;
 
-  // });
+    await expect(() => pageLoader(testUrl, tempDir))).toThrow();
+  });
 
   // test('App run: link not provided, existing test directory', async () => {
 
