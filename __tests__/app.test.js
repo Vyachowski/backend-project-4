@@ -83,7 +83,14 @@ describe('Page loader functional testing', () => {
     const testUrl = null;
     const { tempDir } = tempData;
 
-    await expect(() => pageLoader(testUrl, tempDir))).toThrow();
+    await expect(async () => await pageLoader(testUrl, tempDir)).rejects.toThrow();
+  });
+
+  test('App run: link invalid', async () => {
+    const testUrl = 'null.ru';
+    const { tempDir } = tempData;
+
+    await expect(async () => await pageLoader(testUrl, tempDir)).rejects.toThrow();
   });
 
   // test('App run: link not provided, existing test directory', async () => {
