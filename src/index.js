@@ -16,7 +16,7 @@ const fetchHtmlPage = (url) => axios
       throw new Error('This page doesn\'t exist. Please try another url.');
     }
 
-    const contentStart = res.data.trim().toLowerCase().substring(0, 15);
+    const contentStart = res.data.trim().substring(0, 15).toLowerCase();
 
     if (!contentStart.includes('<!doctype html>') && !contentStart.includes('<html>')) {
       throw new Error('The fetched content is not an HTML document.');

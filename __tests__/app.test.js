@@ -1,5 +1,5 @@
 import {
-  readFile, mkdir, mkdtemp, rm, stat,
+  readFile, mkdtemp, rm,
 } from 'node:fs/promises';
 import { fileURLToPath } from 'url';
 import path, { dirname } from 'path';
@@ -11,52 +11,59 @@ import pageLoader from '../src/index.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Nock usage
-let htmlResponse;
+describe('Page loader functional testing', () => {
+  const testData = {
+    domain: 'https://ru.hexlet.io/',
+    fileNamePrefix: 'ru-hexlet-io-',
+    fileExtension: '.html',
+    getUrl() { return `${this.domain}courses`; },
+    getUrl404() { return `${this.domain}404`; },
+    getFileName() { return `${this.fileNamePrefix}courses${this.fileExtension}`; },
+    getFileName404() { return `${this.fileNamePrefix}courses${this.fileExtension}`; },
+  };
 
-beforeAll(async () => {
-  const htmlExampleFilePath = path.join(__dirname, '..', '__fixtures__', 'example.html');
-  htmlResponse = await readFile(htmlExampleFilePath, 'utf-8');
+  const tempData = {
+    htmlResponse: null,
+    innerTempDir: null,
+    tempDir: null,
+  };
 
-  nock('https://ru.hexlet.io/')
-    .get('/courses')
-    .reply(200, htmlResponse);
-});
+  beforeAll(async () => {
+    const htmlExampleFilePath = path.join(__dirname, '..', '__fixtures__', 'example.html');
+    tempData.htmlResponse = await readFile(htmlExampleFilePath, 'utf-8');
 
-afterAll(async () => {
-  nock.cleanAll();
-});
+    nock('https://ru.hexlet.io/')
+      .get('/courses')
+      .reply(200, tempData.htmlResponse);
+  });
 
-// Creating temp folders
-let tempDir;
-let innerTempDir;
+  afterAll(async () => {
+    nock.cleanAll();
+  });
 
-beforeEach(async () => {
-  tempDir = await mkdtemp(path.join(os.tmpdir(), 'page-loader-'));
-  innerTempDir = await mkdtemp(path.join(tempDir, 'inner-'));
-});
+  beforeEach(async () => {
+    tempData.tempDir = await mkdtemp(path.join(os.tmpdir(), 'page-loader-'));
+    tempData.innerTempDir = await mkdtemp(path.join(tempData.tempDir, 'inner-'));
+  });
 
-afterEach(async () => {
-  try {
-    await rm(tempDir, { recursive: true });
-  } catch (error) {
-    console.error('Failed to delete temporary directory:', error);
-  }
-});
+  afterEach(async () => {
+    try {
+      await rm(tempData.tempDir, { recursive: true });
+    } catch (error) {
+      console.error('Failed to delete temporary directory:', error);
+    }
+  });
 
-// Common variables
-const exampleUrl = 'https://ru.hexlet.io/courses';
-const exampleFileName = 'ru-hexlet-io-courses.html';
-const exampleNonExistingUrl = 'https://ru.hexlet.io/404';
-const exampleNonExistingFileName = 'ru-hexlet-io-404.html';
+  test('App run: link provided, existing test directory', async () => {
+    const testUrl = testData.getUrl();
+    const tempDir = tempData.tempDir;
 
-// Positive cases
-test('App run: link provided, existing test directory', async () => {
-  const loadedPagePath = await pageLoader(exampleUrl, tempDir);
-  console.log(loadedPagePath);
-  const loadedPageContent = await readFile(loadedPagePath, 'utf-8');
+    const loadedPagePath = await pageLoader(testUrl, tempDir);
+    console.log(loadedPagePath);
+    const loadedPageContent = await readFile(loadedPagePath, 'utf-8');
 
-  await expect(loadedPageContent).toBe(htmlResponse);
+    await expect(loadedPageContent).toBe(tempData.htmlResponse);
+  });
 });
 
 // test('App run: link provided, existing directory inside test dir', async () => {
