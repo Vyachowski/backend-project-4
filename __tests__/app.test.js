@@ -56,51 +56,45 @@ describe('Page loader functional testing', () => {
   });
 
   test('App run: link provided, existing test directory', async () => {
+    const expectedHtml = tempData.htmlResponse;
     const testUrl = testData.getUrl();
-    const tempDir = tempData.tempDir;
+    const { tempDir } = tempData;
 
     const loadedPagePath = await pageLoader(testUrl, tempDir);
     console.log(loadedPagePath); // Special command for mac os testing
     const loadedPageContent = await readFile(loadedPagePath, 'utf-8');
 
-    await expect(loadedPageContent).toBe(tempData.htmlResponse);
+    await expect(loadedPageContent).toBe(expectedHtml);
   });
 
   test('App run: link provided, existing directory inside test dir', async () => {
+    const expectedHtml = tempData.htmlResponse;
     const testUrl = testData.getUrl();
-    const innerTempDir = tempData.innerTempDir;
+    const { innerTempDir } = tempData;
 
     const loadedPagePath = await pageLoader(testUrl, innerTempDir);
     console.log(loadedPagePath); // Special command for mac os testing
     const loadedPageContent = await readFile(loadedPagePath, 'utf-8');
 
-    await expect(loadedPageContent).toBe(tempData.htmlResponse);
+    await expect(loadedPageContent).toBe(expectedHtml);
   });
+
+  // Negative cases
+  // Without an url
+  // test('App run: link not provided', async () => {
+
+  // });
+
+  // test('App run: link not provided, existing test directory', async () => {
+
+  // });
+
+  // // Invalid url
+  // test('App run: link invalid, default directory', async () => {
+
+  // });
+
+  // test('App run: link invalid, existing test directory', async () => {
+
+  // });
 });
-
-// test('App run: link provided, existing directory inside test dir', async () => {
-//   const loadedPagePath = await pageLoader(exampleUrl, innerTempDir);
-//   console.log(loadedPagePath);
-//   const loadedPageContent = await readFile(loadedPagePath, 'utf-8');
-
-//   await expect(loadedPageContent).toBe(htmlResponse);
-// });
-
-// Negative cases
-// Without an url
-// test('App run: link not provided', async () => {
-
-// });
-
-// test('App run: link not provided, existing test directory', async () => {
-
-// });
-
-// // Invalid url
-// test('App run: link invalid, default directory', async () => {
-
-// });
-
-// test('App run: link invalid, existing test directory', async () => {
-
-// });
