@@ -33,6 +33,7 @@ describe('Page loader functional testing', () => {
     tempData.htmlResponse = await readFile(htmlExampleFilePath, 'utf-8');
 
     nock('https://ru.hexlet.io/')
+      .persist()
       .get('/courses')
       .reply(200, tempData.htmlResponse);
   });
@@ -59,6 +60,17 @@ describe('Page loader functional testing', () => {
     const tempDir = tempData.tempDir;
 
     const loadedPagePath = await pageLoader(testUrl, tempDir);
+    console.log(loadedPagePath); // Special command for mac os testing
+    const loadedPageContent = await readFile(loadedPagePath, 'utf-8');
+
+    await expect(loadedPageContent).toBe(tempData.htmlResponse);
+  });
+
+  test('App run: link provided, existing directory inside test dir', async () => {
+    const testUrl = testData.getUrl();
+    const innerTempDir = tempData.innerTempDir;
+
+    const loadedPagePath = await pageLoader(testUrl, innerTempDir);
     console.log(loadedPagePath); // Special command for mac os testing
     const loadedPageContent = await readFile(loadedPagePath, 'utf-8');
 
