@@ -25,8 +25,8 @@ const fetchHtmlPage = (url) => axios
     return res.data;
   });
 
-const saveHtmlPage = (outputPath, data) => {
-  writeFile(outputPath, data);
+const saveHtmlPage = async (outputPath, data) => {
+  await writeFile(outputPath, data);
   return outputPath;
 };
 
@@ -38,7 +38,8 @@ const pageLoader = (url, outputDirPath) => {
     throw new Error(`An output directory path should be a valid string, for example: ${homedir}`);
   }
 
-  const filePath = generateFilePath(outputDirPath, generateFileNameFromUrl(url));
+  const pageExtension = '.html';
+  const filePath = generateFilePath(outputDirPath, generateFileNameFromUrl(url, pageExtension));
   return fetchHtmlPage(url)
     .then((data) => saveHtmlPage(filePath, data))
     .then((outputPath) => outputPath);
