@@ -21,7 +21,8 @@ test('Validate URL: invalid url(excess chars)', () => {
 });
 
 test('Generate filename from URL: valid url', () => {
-  expect(generateFileNameFromUrl('https://ru.hexlet.io/courses')).toBe('ru-hexlet-io-courses.html');
+  const testExtension = '.pug'
+  expect(generateFileNameFromUrl('https://ru.hexlet.io/courses', testExtension)).toBe('ru-hexlet-io-courses.pug');
 });
 
 test('Generate filename from URL: wrong argment type', () => {

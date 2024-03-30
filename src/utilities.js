@@ -10,14 +10,14 @@ const isValidUrl = (urlString) => {
   return !!urlPattern.test(urlString);
 };
 
-const generateFileNameFromUrl = (url) => {
+const generateFileNameFromUrl = (url, postfix) => {
   if (typeof url !== 'string') {
     throw new Error('Not a valid url string');
   }
 
   const urlWithoutProtocol = url.replace(/^(https?:\/\/)?/, '');
   const symbolsReplacedUrl = urlWithoutProtocol.replace(/[^a-zA-Z0-9]/g, '-');
-  return `${symbolsReplacedUrl}.html`;
+  return `${symbolsReplacedUrl}${postfix}`;
 };
 
 const generateFilePath = (dirPath, filePath) => path.join(dirPath, filePath);
