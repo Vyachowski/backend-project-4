@@ -59,7 +59,7 @@ describe('Page loader functional testing', () => {
     const tempDir = tempData.tempDir;
 
     const loadedPagePath = await pageLoader(testUrl, tempDir);
-    console.log(loadedPagePath);
+    console.log(loadedPagePath); // Special command for mac os testing
     const loadedPageContent = await readFile(loadedPagePath, 'utf-8');
 
     await expect(loadedPageContent).toBe(tempData.htmlResponse);
