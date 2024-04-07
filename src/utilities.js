@@ -1,5 +1,3 @@
-import path from 'path';
-
 const isValidUrl = (urlString) => {
   const urlPattern = new RegExp('^(https?:\\/\\/)?'
         + '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'
@@ -20,10 +18,7 @@ const generateFileNameFromUrl = (url, postfix) => {
   return `${symbolsReplacedUrl}${postfix}`;
 };
 
-const generateFilePath = (dirPath, filePath) => path.join(dirPath, filePath);
-
 export {
   isValidUrl,
   generateFileNameFromUrl,
-  generateFilePath,
 };
