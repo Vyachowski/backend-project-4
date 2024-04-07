@@ -1,4 +1,5 @@
 import { writeFile } from 'node:fs/promises';
+import * as cheerio from 'cheerio';
 import validPath from 'valid-path';
 import { homedir } from 'os';
 import axios from 'axios';
@@ -25,6 +26,20 @@ const fetchHtmlPage = (url) => axios
     return res.data;
   });
 
+const downloadResources = (dom, outputPath) => {
+  // Create directory
+  // Download images and get the links
+  const $images = dom('img');
+  const imageLinks = $images.map((_, index) => dom(index).attr('src')).get();
+  console.log(imageLinks);
+  // Download other resources and get the links
+  return new Promise(() => {
+    return imageLinks;
+  });
+};
+
+const replaceUrlToLocal = (document, urlList) => document + urlList;
+
 const pageLoader = (url, outputDirPath) => {
   if (typeof url !== 'string' || !isValidUrl(url)) {
     throw new Error('Url is not valid. Provide a proper link such as http://example.com');
@@ -35,7 +50,12 @@ const pageLoader = (url, outputDirPath) => {
 
   const filePath = path.join(outputDirPath, generateFileNameFromUrl(url, '.html'));
   return fetchHtmlPage(url)
-    .then((data) => writeFile(filePath, data))
+    .then((htmlString) => {
+      const $ = cheerio.load(htmlString);
+      return downloadResources($, outputDirPath)
+        .then((downloadedUrlList) => replaceUrlToLocal(htmlString, downloadedUrlList));
+    })
+    .then((updatedDocument) => writeFile(filePath, updatedDocument))
     .then(() => filePath);
 };
 

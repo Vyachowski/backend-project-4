@@ -20,7 +20,7 @@ test('Validate URL: invalid url(excess chars)', () => {
 });
 
 test('Generate filename from URL: valid url', () => {
-  const testExtension = '.pug'
+  const testExtension = '.pug';
   expect(generateFileNameFromUrl('https://ru.hexlet.io/courses', testExtension)).toBe('ru-hexlet-io-courses.pug');
 });
 
