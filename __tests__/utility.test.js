@@ -1,7 +1,6 @@
 import {
   isValidUrl,
   generateFileNameFromUrl,
-  generateFilePath,
 } from '../src/utilities.js';
 
 test('Validate URL: valid url', () => {
@@ -27,8 +26,4 @@ test('Generate filename from URL: valid url', () => {
 
 test('Generate filename from URL: wrong argment type', () => {
   expect(() => generateFileNameFromUrl(['https://ru.hexlet.io/courses'])).toThrow('Not a valid url string');
-});
-
-test('Generate filepath: valid arguments', () => {
-  expect(generateFilePath('/temp/courses', 'file.example')).toBe('/temp/courses/file.example');
 });

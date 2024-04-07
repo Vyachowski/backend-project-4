@@ -2,11 +2,11 @@ import { writeFile } from 'node:fs/promises';
 import validPath from 'valid-path';
 import { homedir } from 'os';
 import axios from 'axios';
+import path from 'path';
 
 import {
   isValidUrl,
   generateFileNameFromUrl,
-  generateFilePath,
 } from './utilities.js';
 
 const fetchHtmlPage = (url) => axios
@@ -25,11 +25,6 @@ const fetchHtmlPage = (url) => axios
     return res.data;
   });
 
-const saveHtmlPage = async (outputPath, data) => {
-  await writeFile(outputPath, data);
-  return outputPath;
-};
-
 const pageLoader = (url, outputDirPath) => {
   if (typeof url !== 'string' || !isValidUrl(url)) {
     throw new Error('Url is not valid. Provide a proper link such as http://example.com');
@@ -38,11 +33,10 @@ const pageLoader = (url, outputDirPath) => {
     throw new Error(`An output directory path should be a valid string, for example: ${homedir}`);
   }
 
-  const pageExtension = '.html';
-  const filePath = generateFilePath(outputDirPath, generateFileNameFromUrl(url, pageExtension));
+  const filePath = path.join(outputDirPath, generateFileNameFromUrl(url, '.html'));
   return fetchHtmlPage(url)
-    .then((data) => saveHtmlPage(filePath, data))
-    .then((outputPath) => outputPath);
+    .then((data) => writeFile(filePath, data))
+    .then(() => filePath);
 };
 
 export default pageLoader;
