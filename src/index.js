@@ -7,7 +7,7 @@ import path from 'path';
 
 import {
   isValidUrl,
-  generateFileNameFromUrl,
+  generateFileName,
 } from './utilities.js';
 
 const fetchHtmlPage = (url) => axios
@@ -26,19 +26,46 @@ const fetchHtmlPage = (url) => axios
     return res.data;
   });
 
-const downloadResources = (dom, outputPath) => {
-  // Create directory
-  // Download images and get the links
-  const $images = dom('img');
-  const imageLinks = $images.map((_, index) => dom(index).attr('src')).get();
-  console.log(imageLinks);
-  // Download other resources and get the links
-  return new Promise(() => {
-    return imageLinks;
+const replaceDomLinks = (htmlDocument, outputDir, url) => {
+  const $ = cheerio.load(htmlDocument);
+  const currentLink = new URL(url);
+  const $elements = $('img, script, link');
+  const assetsDirectory = generateFileName(url, false, '_files');
+  const linksToDownload = [];
+
+  $elements.each((index, el) => {
+    const link = $(el).attr('src') || $(el).attr('href');
+    if (link) {
+      const targetLink = new URL(link, currentLink);
+      if (targetLink.hostname === currentLink.hostname) {
+        if ($(el).attr('src')) {
+          $(el).attr('src', `${assetsDirectory}/${generateFileName(targetLink.href, true)}`);
+        } else {
+          $(el).attr('href', `${assetsDirectory}/${generateFileName(targetLink.href, true)}`);
+        }
+        linksToDownload.push(targetLink.href);
+      }
+    }
   });
+
+  return {
+    localDom: $.html(),
+    urlList: linksToDownload,
+  };
 };
 
-const replaceUrlToLocal = (document, urlList) => document + urlList;
+const downloadResources = (urlList, outputDirPath) => {
+  const downloadQueue = urlList.map((url) => downloadResource(url));
+  return Promise
+    .all(downloadQueue)
+    .then((files) => {
+      console.log(files);
+      const writeFilesQueue = downloadQueue.map((file) => writeFile(outputDirPath));
+      return Promise
+        .allSettled(writeFilesQueue)
+        .then((results) => results.every((value) => value.status === 'fulfilled'));
+    })
+};
 
 const pageLoader = (url, outputDirPath) => {
   if (typeof url !== 'string' || !isValidUrl(url)) {
@@ -47,16 +74,18 @@ const pageLoader = (url, outputDirPath) => {
   if (typeof outputDirPath !== 'string' || !validPath(outputDirPath)) {
     throw new Error(`An output directory path should be a valid string, for example: ${homedir}`);
   }
-
-  const filePath = path.join(outputDirPath, generateFileNameFromUrl(url, '.html'));
+  const filePath = path.join(outputDirPath, generateFileName(url, '.html'));
   return fetchHtmlPage(url)
     .then((htmlString) => {
-      const $ = cheerio.load(htmlString);
-      return downloadResources($, outputDirPath)
-        .then((downloadedUrlList) => replaceUrlToLocal(htmlString, downloadedUrlList));
-    })
-    .then((updatedDocument) => writeFile(filePath, updatedDocument))
-    .then(() => filePath);
+      const { localDom, urlList } = replaceDomLinks(htmlString, outputDirPath, url);
+      // console.log(urlList);
+      if (urlList.length > 0) {
+        return downloadResources(urlList).then((r) => (r && localDom));
+      }
+      return localDom;
+    });
+  // .then((updatedDocument) => writeFile(filePath, updatedDocument))
+  // .then(() => filePath);
 };
 
 export default pageLoader;
