@@ -75,14 +75,13 @@ const downloadResource = (url) => {
 }
 
 const downloadResources = (urlList, outputDirPath) => {
-  const dirPath = path.resolve(process.cwd(), outputDirPath);
-  return mkdir(dirPath)
+  return mkdir(outputDirPath)
     .then(() => {
       return Promise.allSettled(urlList.map((url) => {
         return new Promise((resolve) => {
           downloadResource(url)
             .then(({ name, data }) => {
-              writeFile(path.join(dirPath, name), data)
+              writeFile(path.join(outputDirPath, name), data)
                 .then(() => resolve({ url, status: 'fulfilled' }))
                 .catch(() => resolve({ url, status: 'rejected' }));
             })
@@ -104,21 +103,20 @@ const pageLoader = (url, outputDirPath) => {
   }
 
   const filePath = path.join(outputDirPath, generateFileName(url, true,'.html'));
-  const dirPath = path.join(generateFileName(url, true, '_files'));
+  const dirPath = path.join(outputDirPath, generateFileName(url, true, '_files'));
 
   return fetchHtmlPage(url)
     .then((htmlString) => {
       const { localDom, urlList } = replaceDomLinks(htmlString, url);
 
       if (urlList.length > 0) {
-        return downloadResources(urlList, dirPath).then((r) => r);
-        // return downloadResources(urlList).then((r) => (r && localDom));
+        return downloadResources(urlList, dirPath).then((r) => localDom);
       }
 
-      // return localDom;
-    });
-  // .then((updatedDocument) => writeFile(filePath, updatedDocument))
-  // .then(() => filePath);
+      return localDom;
+    })
+  .then((updatedDocument) => writeFile(filePath, updatedDocument))
+  .then(() => filePath);
 };
 
 export default pageLoader;

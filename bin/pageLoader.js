@@ -11,13 +11,13 @@ const app = (url, { output }) => {
   }
 };
 
-const workingFolderShortPath = process.cwd().split('/').at(-1);
+// const workingFolderShortPath = process.cwd().split('/').at(-1);
 
 program
   .name('page-loader')
   .description('Page loader utility')
   .version('1.0.0')
   .argument('<url>', 'An url of a website to save')
-  .option('-o, --output [dir]', 'output dir', workingFolderShortPath)
+  .option('-o, --output [dir]', 'output dir', process.cwd())
   .action(app)
   .parse(process.argv);
