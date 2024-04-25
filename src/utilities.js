@@ -10,21 +10,27 @@ const isValidUrl = (urlString) => {
   return !!urlPattern.test(urlString);
 };
 
-const generateFileName = (input, hasExtension = false, postfix = '') => {
+const formatFileName = (input) => {
   if (typeof input !== 'string') {
     throw new Error('Not a valid url string');
   }
 
-  let pathname = input;
-  let extension = '';
-  if (hasExtension) {
-    extension = path.extname(input);
-    pathname = pathname.replace(extension, '');
-  }
+  const extension = path.extname(input);
+  const pathname = input.replace(extension, '');
 
   const urlWithoutProtocol = pathname.replace(/^(https?:\/\/)?/, '');
   const symbolsReplacedUrl = urlWithoutProtocol.replace(/[^a-zA-Z0-9]/g, '-');
-  return `${symbolsReplacedUrl}${postfix}${extension}`;
+  return `${symbolsReplacedUrl}${extension}`;
+};
+
+const generateFileNameFromUrl = (input, postfix = '') => {
+  if (typeof input !== 'string') {
+    throw new Error('Not a valid url string');
+  }
+
+  const urlWithoutProtocol = input.replace(/^(https?:\/\/)?/, '');
+  const symbolsReplacedUrl = urlWithoutProtocol.replace(/[^a-zA-Z0-9]/g, '-');
+  return `${symbolsReplacedUrl}${postfix}`;
 };
 
 const getResourceType = (url) => {
@@ -43,6 +49,7 @@ const getResourceType = (url) => {
 
 export {
   isValidUrl,
-  generateFileName,
+  formatFileName,
+  generateFileNameFromUrl,
   getResourceType,
 };

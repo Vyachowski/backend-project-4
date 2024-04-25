@@ -7,7 +7,8 @@ import path from 'path';
 
 import {
   isValidUrl,
-  generateFileName,
+  formatFileName,
+  generateFileNameFromUrl,
   getResourceType,
 } from './utilities.js';
 
@@ -31,7 +32,7 @@ const replaceDomLinks = (htmlDocument, url) => {
   const $ = cheerio.load(htmlDocument);
   const currentLink = new URL(url);
   const $elements = $('img, script, link');
-  const assetsDirectory = generateFileName(url, false, '_files');
+  const assetsDirectory = generateFileNameFromUrl(url, '_files');
   const linksToDownload = [];
 
   $elements.each((index, el) => {
@@ -40,9 +41,9 @@ const replaceDomLinks = (htmlDocument, url) => {
       const targetLink = new URL(link, currentLink);
       if (targetLink.hostname === currentLink.hostname) {
         if ($(el).attr('src')) {
-          $(el).attr('src', `${assetsDirectory}/${generateFileName(targetLink.href, true)}`);
+          $(el).attr('src', `${assetsDirectory}/${formatFileName(targetLink.href)}`);
         } else {
-          $(el).attr('href', `${assetsDirectory}/${generateFileName(targetLink.href, true)}`);
+          $(el).attr('href', `${assetsDirectory}/${formatFileName(targetLink.href)}`);
         }
         linksToDownload.push(targetLink.href);
       }
@@ -56,12 +57,11 @@ const replaceDomLinks = (htmlDocument, url) => {
 };
 
 const downloadResource = (url) => {
-  const name = generateFileName(url);
+  const name = formatFileName(url);
   const resourceType = getResourceType(url); // 'image' or 'text'
 
-  const requestParameters = resourceType === 'image' ? { responseType: 'blob' } : {};
   return axios
-    .get(url, requestParameters)
+    .get(url, { responseType: 'arraybuffer'})
     .then(({ status, data }) => {
       if (status === 200) {
         return { name, data };
@@ -102,8 +102,8 @@ const pageLoader = (url, outputDirPath) => {
     throw new Error(`An output directory path should be a valid string, for example: ${homedir}`);
   }
 
-  const filePath = path.join(outputDirPath, generateFileName(url, true,'.html'));
-  const dirPath = path.join(outputDirPath, generateFileName(url, true, '_files'));
+  const filePath = path.join(outputDirPath, generateFileNameFromUrl(url, '.html'));
+  const dirPath = path.join(outputDirPath, generateFileNameFromUrl(url, '_files'));
 
   return fetchHtmlPage(url)
     .then((htmlString) => {
