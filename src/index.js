@@ -30,33 +30,30 @@ const fetchSourcePage = (url) => axios
     return res.data;
   });
 
-const getLinksToDownload = ($, { hostname }) => {
-  const $elements = $('img, script, link, a');
+const getLinksToDownload = ($, { hostname, href }) => {
+  const $elements = $('img, script, link');
   const linksToDownload = [];
 
   $elements.each((index, el) => {
-    const link = $(el).attr('src') || $(el).attr('href');
-    if (link) {
-      const linkHost = new URL(link, host);
-      if (linkHost === hostname) linksToDownload.push(link.href);
+    const linkString = $(el).attr('src') || $(el).attr('href');
+    if (linkString) {
+      const link = new URL(linkString, href);
+      if (link.hostname === hostname) linksToDownload.push(link.href);
     }
-  }
+  });
 
   return linksToDownload;
 };
 
 const replaceDomLinks = ($, url) => {
-  // const $ = cheerio.load(htmlDocument);
-  const currentLink = new URL(url);
   const $elements = $('img, script, link');
-  const assetsDirectory = generateFileNameFromUrl(url, '_files');
-  const linksToDownload = [];
+  const assetsDirectory = generateFileNameFromUrl(url.href, '_files');
 
   $elements.each((index, el) => {
     const link = $(el).attr('src') || $(el).attr('href');
     if (link) {
-      const targetLink = new URL(link, currentLink);
-      if (targetLink.hostname === currentLink.hostname) {
+      const targetLink = new URL(link, url.href);
+      if (targetLink.hostname === url.hostname) {
         if ($(el).attr('rel') === 'canonical') {
           $(el).attr('href', `${assetsDirectory}/${formatFileName(targetLink.href)}.html`);
         } else {
@@ -66,15 +63,11 @@ const replaceDomLinks = ($, url) => {
             $(el).attr('href', `${assetsDirectory}/${formatFileName(targetLink.href)}`);
           }
         }
-        linksToDownload.push(targetLink.href);
       }
     }
   });
 
-  return {
-    localDom: $.html(),
-    urlList: linksToDownload,
-  };
+  return $;
 };
 
 const downloadResource = (url) => {
@@ -85,7 +78,7 @@ const downloadResource = (url) => {
     .get(url, { responseType: 'arraybuffer'})
     .then(({ status, data }) => {
       if (status === 200) {
-        return { name, data };
+        return { name, data, type: resourceType };
       } else {
         throw new Error(`Failed to download resource. Status: ${response.status}`);
       }
@@ -93,7 +86,7 @@ const downloadResource = (url) => {
     .catch((error) => {
       throw error;
     });
-}
+};
 
 const displayTaskStatus = (promisesList, urlsList) => {
   const taskList = promisesList.map((promise, index) => {
@@ -113,8 +106,9 @@ const downloadResources = (urlList, outputDirPath) => {
       const taskList = urlList.map((url) => {
         return new Promise((resolve) => {
           downloadResource(url)
-            .then(({ name, data }) => {
-              writeFile(path.join(outputDirPath, name), data)
+            .then(({ name, data, type }) => {
+              const fileName = type === 'text/html' ? `${name}.html` : name;
+              writeFile(path.join(outputDirPath, fileName), data)
                 .then(() => resolve({ url, status: 'success' }))
                 .catch(() => resolve({ url, status: 'failed' }));
             })
@@ -130,7 +124,7 @@ const downloadResources = (urlList, outputDirPath) => {
 };
 
 const pageLoader = (urlString, outputDirPath) => {
-  if (typeof url !== 'string' || !isValidUrl(url)) {
+  if (typeof urlString !== 'string' || !isValidUrl(urlString)) {
     throw new Error('Url is not valid. Provide a proper link such as http://example.com');
   }
   if (typeof outputDirPath !== 'string' || !validPath(outputDirPath)) {
@@ -138,13 +132,14 @@ const pageLoader = (urlString, outputDirPath) => {
   }
 
   const url = new URL(urlString);
-  const sourceFilePath = path.join(outputDirPath, generateFileNameFromUrl(url, '.html'));
-  const dirPath = path.join(outputDirPath, generateFileNameFromUrl(url, '_files'));
+  const sourceFilePath = path.join(outputDirPath, generateFileNameFromUrl(urlString, '.html'));
+  const dirPath = path.join(outputDirPath, generateFileNameFromUrl(urlString, '_files'));
 
   return fetchSourcePage(url)
     .then((html) => {
       const dom = cheerio.load(html);
       const linksToDownload = getLinksToDownload(dom, url);
+      console.log(linksToDownload);
       const htmlWithReplacedLinks = replaceDomLinks(dom, url).html();
 
       if (linksToDownload.length > 0) {
