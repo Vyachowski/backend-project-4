@@ -85,8 +85,7 @@ const fetchResource = (url) => {
     });
 };
 
-const writeResource = (outputDirPath, fileName, data, resolve) => {
-  const filePath = path.join(outputDirPath, fileName);
+const writeResource = (filePath, data, link, resolve) => {
   return writeFile(filePath, data)
     .then(() => resolve({ url: link, status: 'success' }))
     .catch(() => resolve({ url: link, status: 'failed' }));
@@ -109,7 +108,8 @@ const downloadResources = (urlList, outputDirPath) => mkdir(outputDirPath, { rec
       fetchResource(link)
         .then(({ name, data }) => {
           const fileName = type === 'html' ? `${formatFileName(name)}.html` : formatFileName(name);
-          writeResource(outputDirPath, fileName, data, resolve);
+          const filePath = path.join(outputDirPath, fileName);
+          writeResource(filePath, data, link, resolve);
         })
         .catch(() => resolve({ url: link, status: 'failed' }));
     }));
