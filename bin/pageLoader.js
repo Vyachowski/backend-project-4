@@ -8,6 +8,7 @@ const app = (url, { output }) => {
       .then((outputPath) => console.log(`Page was successfully downloaded into '${outputPath}'`));
   } catch (error) {
     console.error(`\x1b[33m ${error.message}\x1b[0m`);
+    process.exit(1);
   }
 };
 
