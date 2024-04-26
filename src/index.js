@@ -85,9 +85,9 @@ const fetchResource = (url) => {
     });
 };
 
-const writeResource = (filePath, data, link, resolve) => writeFile(filePath, data)
-  .then(() => resolve({ url: link, status: 'success' }))
-  .catch(() => resolve({ url: link, status: 'failed' }));
+const writeResource = (filePath, data, link) => writeFile(filePath, data)
+  .then(() => ({ url: link, status: 'success' }))
+  .catch(() => ({ url: link, status: 'failed' }));
 
 const displayTaskStatus = (promisesList, urlsList) => {
   const taskList = promisesList.map((promise, index) => ({
@@ -101,16 +101,16 @@ const displayTaskStatus = (promisesList, urlsList) => {
 
 const downloadResources = (urlList, outputDirPath) => mkdir(outputDirPath, { recursive: true })
   .then(() => {
-    const taskList = urlList.map((resource) => new Promise((resolve) => {
+    const taskList = urlList.map((resource) => {
       const { link, type } = resource;
-      fetchResource(link)
+      return fetchResource(link)
         .then(({ name, data }) => {
           const fileName = type === 'html' ? `${formatFileName(name)}.html` : formatFileName(name);
           const filePath = path.join(outputDirPath, fileName);
-          writeResource(filePath, data, link, resolve);
+          return writeResource(filePath, data, link);
         })
-        .catch(() => resolve({ url: link, status: 'failed' }));
-    }));
+        .catch(() => ({ url: link, status: 'failed' }));
+    });
     displayTaskStatus(taskList, urlList.map((resource) => resource.link));
     return Promise.allSettled(taskList);
   })
