@@ -76,9 +76,10 @@ const downloadResource = (url) => {
 
   return axios
     .get(url, { responseType: 'arraybuffer'})
-    .then(({ status, data }) => {
+    .then(({ status, data, headers }) => {
       if (status === 200) {
-        return { name, data, type: resourceType };
+        const contentType = headers['content-type'];
+        return { name, data, contentType };
       } else {
         throw new Error(`Failed to download resource. Status: ${response.status}`);
       }
@@ -106,8 +107,8 @@ const downloadResources = (urlList, outputDirPath) => {
       const taskList = urlList.map((url) => {
         return new Promise((resolve) => {
           downloadResource(url)
-            .then(({ name, data, type }) => {
-              const fileName = type === 'text/html' ? `${name}.html` : name;
+            .then(({ name, data, contentType }) => {
+              const fileName = contentType === 'text/html' ? `${name}.html` : name;
               writeFile(path.join(outputDirPath, fileName), data)
                 .then(() => resolve({ url, status: 'success' }))
                 .catch(() => resolve({ url, status: 'failed' }));
@@ -139,7 +140,6 @@ const pageLoader = (urlString, outputDirPath) => {
     .then((html) => {
       const dom = cheerio.load(html);
       const linksToDownload = getLinksToDownload(dom, url);
-      console.log(linksToDownload);
       const htmlWithReplacedLinks = replaceDomLinks(dom, url).html();
 
       if (linksToDownload.length > 0) {
