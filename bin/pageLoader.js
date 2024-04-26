@@ -11,8 +11,6 @@ const app = (url, { output }) => {
   }
 };
 
-// const workingFolderShortPath = process.cwd().split('/').at(-1);
-
 program
   .name('page-loader')
   .description('Page loader utility')

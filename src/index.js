@@ -41,10 +41,14 @@ const replaceDomLinks = (htmlDocument, url) => {
     if (link) {
       const targetLink = new URL(link, currentLink);
       if (targetLink.hostname === currentLink.hostname) {
-        if ($(el).attr('src')) {
-          $(el).attr('src', `${assetsDirectory}/${formatFileName(targetLink.href)}`);
+        if ($(el).attr('rel') === 'canonical') {
+          $(el).attr('href', `${assetsDirectory}/${formatFileName(targetLink.href)}.html`);
         } else {
-          $(el).attr('href', `${assetsDirectory}/${formatFileName(targetLink.href)}`);
+          if ($(el).attr('src')) {
+            $(el).attr('src', `${assetsDirectory}/${formatFileName(targetLink.href)}`);
+          } else {
+            $(el).attr('href', `${assetsDirectory}/${formatFileName(targetLink.href)}`);
+          }
         }
         linksToDownload.push(targetLink.href);
       }
