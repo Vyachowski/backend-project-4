@@ -142,7 +142,7 @@ const downloadResources = (urlList, outputDirPath) => {
     });
 };
 
-const pageLoader = (urlString, outputDirPath) => {
+const pageLoader = (urlString, outputDirPath = process.cwd()) => {
   if (typeof urlString !== 'string' || !isValidUrl(urlString)) {
     throw new Error('Url is not valid. Provide a proper link such as http://example.com');
   }
