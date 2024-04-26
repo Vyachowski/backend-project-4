@@ -3,6 +3,7 @@ import * as cheerio from 'cheerio';
 import validPath from 'valid-path';
 import { homedir } from 'os';
 import axios from 'axios';
+import Listr from 'listr';
 import path from 'path';
 
 import {
@@ -74,20 +75,34 @@ const downloadResource = (url) => {
     });
 }
 
+const runTasksVisualRepresentation = (promisesList, urlsList) => {
+  const taskList = promisesList.map((promise, index) => {
+    return {
+      title: urlsList[index],
+      task: () => promise
+    }
+  });
+  const tasks = new Listr(taskList, { concurrent: true });
+
+  tasks.run().catch(err => { console.error(err) });
+};
+
 const downloadResources = (urlList, outputDirPath) => {
   return mkdir(outputDirPath)
     .then(() => {
-      return Promise.allSettled(urlList.map((url) => {
+      const taskList = urlList.map((url) => {
         return new Promise((resolve) => {
           downloadResource(url)
             .then(({ name, data }) => {
               writeFile(path.join(outputDirPath, name), data)
-                .then(() => resolve({ url, status: 'fulfilled' }))
-                .catch(() => resolve({ url, status: 'rejected' }));
+                .then(() => resolve({ url, status: 'success' }))
+                .catch(() => resolve({ url, status: 'failed' }));
             })
-            .catch(() => resolve({ url, status: 'rejected' }));
+            .catch(() => resolve({ url, status: 'failed' }));
         });
-      }));
+      });
+      runTasksVisualRepresentation(taskList, urlList);
+      return Promise.allSettled(taskList);
     })
     .then((results) => {
       return results.map((result) => result.value);
@@ -110,7 +125,7 @@ const pageLoader = (url, outputDirPath) => {
       const { localDom, urlList } = replaceDomLinks(htmlString, url);
 
       if (urlList.length > 0) {
-        return downloadResources(urlList, dirPath).then((r) => localDom);
+        return downloadResources(urlList, dirPath).then(() => localDom);
       }
 
       return localDom;
