@@ -79,7 +79,7 @@ const downloadResource = (url) => {
     });
 }
 
-const runTasksVisualRepresentation = (promisesList, urlsList) => {
+const displayTaskStatus = (promisesList, urlsList) => {
   const taskList = promisesList.map((promise, index) => {
     return {
       title: urlsList[index],
@@ -92,7 +92,7 @@ const runTasksVisualRepresentation = (promisesList, urlsList) => {
 };
 
 const downloadResources = (urlList, outputDirPath) => {
-  return mkdir(outputDirPath)
+  return mkdir(outputDirPath, { recursive: true })
     .then(() => {
       const taskList = urlList.map((url) => {
         return new Promise((resolve) => {
@@ -105,7 +105,7 @@ const downloadResources = (urlList, outputDirPath) => {
             .catch(() => resolve({ url, status: 'failed' }));
         });
       });
-      runTasksVisualRepresentation(taskList, urlList);
+      displayTaskStatus(taskList, urlList);
       return Promise.allSettled(taskList);
     })
     .then((results) => {
