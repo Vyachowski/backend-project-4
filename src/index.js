@@ -20,9 +20,10 @@ const fetchSourcePage = (url) => axios
       throw new Error('This page doesn\'t exist. Please try another url.');
     }
 
-    const contentStart = res.data.trim().substring(0, 15).toLowerCase();
+    const $ = cheerio.load(res.data);
+    const isHtml = $('html').length > 0;
 
-    if (!contentStart.includes('<!doctype html>') && !contentStart.includes('<html>')) {
+    if (!isHtml) {
       throw new Error('The fetched content is not an HTML document.');
     }
 
