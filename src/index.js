@@ -9,6 +9,7 @@ import path from 'path';
 import {
   isValidUrl,
   formatFileName,
+  getResourceType,
   generatePageNameFromUrl,
 } from './utilities.js';
 
@@ -28,25 +29,6 @@ const fetchSourcePage = (url) => axios
 
     return res.data;
   });
-
-const getResourceType = ($element) => {
-  const relAttribute = $element.attr('rel');
-  switch ($element.prop('tagName').toLowerCase()) {
-    case 'img':
-      return 'image';
-    case 'script':
-      return 'script';
-    case 'link':
-      if (relAttribute === 'stylesheet') {
-        return 'css';
-      } if (relAttribute === 'canonical') {
-        return 'html';
-      }
-      return 'unknown';
-    default:
-      return 'unknown';
-  }
-};
 
 const getLinksToDownload = ($, { hostname, href }) => {
   const $elements = $('img, script, link'); // types: image, script, html, css
@@ -87,7 +69,7 @@ const replaceDomLinks = ($, url) => {
   return $;
 };
 
-const downloadResource = (url) => {
+const fetchResource = (url) => {
   const name = formatFileName(url);
 
   return axios
@@ -103,6 +85,13 @@ const downloadResource = (url) => {
     });
 };
 
+const writeResource = (outputDirPath, fileName, data, resolve) => {
+  const filePath = path.join(outputDirPath, fileName);
+  return writeFile(filePath, data)
+    .then(() => resolve({ url: link, status: 'success' }))
+    .catch(() => resolve({ url: link, status: 'failed' }));
+}
+
 const displayTaskStatus = (promisesList, urlsList) => {
   const taskList = promisesList.map((promise, index) => ({
     title: urlsList[index],
@@ -117,12 +106,10 @@ const downloadResources = (urlList, outputDirPath) => mkdir(outputDirPath, { rec
   .then(() => {
     const taskList = urlList.map((resource) => new Promise((resolve) => {
       const { link, type } = resource;
-      downloadResource(link)
+      fetchResource(link)
         .then(({ name, data }) => {
           const fileName = type === 'html' ? `${formatFileName(name)}.html` : formatFileName(name);
-          writeFile(path.join(outputDirPath, fileName), data)
-            .then(() => resolve({ url: link, status: 'success' }))
-            .catch(() => resolve({ url: link, status: 'failed' }));
+          writeResource(outputDirPath, fileName, data, resolve);
         })
         .catch(() => resolve({ url: link, status: 'failed' }));
     }));

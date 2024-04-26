@@ -37,8 +37,29 @@ const generatePageNameFromUrl = (input, prefix = '.html') => {
   return `${symbolsReplacedUrl}${prefix}`;
 };
 
+const getResourceType = ($element) => {
+  const relAttribute = $element.attr('rel');
+  const tagName = $element.prop('tagName').toLowerCase();
+  switch (tagName) {
+    case 'img':
+      return 'image';
+    case 'script':
+      return 'script';
+    case 'link':
+      if (relAttribute === 'stylesheet') {
+        return 'css';
+      } if (relAttribute === 'canonical') {
+        return 'html';
+      }
+      return 'unknown';
+    default:
+      return 'unknown';
+  }
+};
+
 export {
   isValidUrl,
   formatFileName,
   generatePageNameFromUrl,
+  getResourceType,
 };
