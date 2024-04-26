@@ -167,7 +167,7 @@ const pageLoader = (urlString, outputDirPath = process.cwd()) => {
       return htmlWithReplacedLinks;
     })
   .then((updatedDocument) => writeFile(sourceFilePath, updatedDocument))
-  .then(() => sourceFilePath);
+  .then(() => sourceFilePath)
   .catch((e) => {
     throw new e;
   });
