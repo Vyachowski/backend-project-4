@@ -30,8 +30,23 @@ const fetchSourcePage = (url) => axios
     return res.data;
   });
 
-const replaceDomLinks = (htmlDocument, url) => {
-  const $ = cheerio.load(htmlDocument);
+const getLinksToDownload = ($, { hostname }) => {
+  const $elements = $('img, script, link, a');
+  const linksToDownload = [];
+
+  $elements.each((index, el) => {
+    const link = $(el).attr('src') || $(el).attr('href');
+    if (link) {
+      const linkHost = new URL(link, host);
+      if (linkHost === hostname) linksToDownload.push(link.href);
+    }
+  }
+
+  return linksToDownload;
+};
+
+const replaceDomLinks = ($, url) => {
+  // const $ = cheerio.load(htmlDocument);
   const currentLink = new URL(url);
   const $elements = $('img, script, link');
   const assetsDirectory = generateFileNameFromUrl(url, '_files');
@@ -114,7 +129,7 @@ const downloadResources = (urlList, outputDirPath) => {
     });
 };
 
-const pageLoader = (url, outputDirPath) => {
+const pageLoader = (urlString, outputDirPath) => {
   if (typeof url !== 'string' || !isValidUrl(url)) {
     throw new Error('Url is not valid. Provide a proper link such as http://example.com');
   }
@@ -122,21 +137,24 @@ const pageLoader = (url, outputDirPath) => {
     throw new Error(`An output directory path should be a valid string, for example: ${homedir}`);
   }
 
+  const url = new URL(urlString);
   const sourceFilePath = path.join(outputDirPath, generateFileNameFromUrl(url, '.html'));
   const dirPath = path.join(outputDirPath, generateFileNameFromUrl(url, '_files'));
 
   return fetchSourcePage(url)
-    .then((htmlString) => {
-      const { localDom, urlList } = replaceDomLinks(htmlString, url);
+    .then((html) => {
+      const dom = cheerio.load(html);
+      const linksToDownload = getLinksToDownload(dom, url);
+      const htmlWithReplacedLinks = replaceDomLinks(dom, url).html();
 
-      if (urlList.length > 0) {
-        return downloadResources(urlList, dirPath).then(() => localDom);
+      if (linksToDownload.length > 0) {
+        return downloadResources(linksToDownload, dirPath).then(() => htmlWithReplacedLinks);
       }
 
-      return localDom;
+      return htmlWithReplacedLinks;
     })
   .then((updatedDocument) => writeFile(sourceFilePath, updatedDocument))
-  .then(() => filePath);
+  .then(() => sourceFilePath);
 };
 
 export default pageLoader;
