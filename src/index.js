@@ -9,8 +9,7 @@ import path from 'path';
 import {
   isValidUrl,
   formatFileName,
-  generateFileNameFromUrl,
-  getResourceType,
+  generatePageNameFromUrl,
 } from './utilities.js';
 
 const fetchSourcePage = (url) => axios
@@ -30,15 +29,35 @@ const fetchSourcePage = (url) => axios
     return res.data;
   });
 
+const getResourceType = ($element) => {
+  switch ($element.prop('tagName').toLowerCase()) {
+    case 'img':
+      return 'image';
+    case 'script':
+      return 'script';
+    case 'link':
+      const relAttribute = $element.attr('rel');
+      if (relAttribute === 'stylesheet') {
+        return 'css';
+      } else if (relAttribute === 'canonical') {
+        return 'html';
+      }
+      break;
+    default:
+      return 'unknown';
+  }
+};
+
 const getLinksToDownload = ($, { hostname, href }) => {
-  const $elements = $('img, script, link');
+  const $elements = $('img, script, link'); // types: image, script, html, css
   const linksToDownload = [];
 
   $elements.each((index, el) => {
     const linkString = $(el).attr('src') || $(el).attr('href');
     if (linkString) {
+      const resourceType = getResourceType($(el));
       const link = new URL(linkString, href);
-      if (link.hostname === hostname) linksToDownload.push(link.href);
+      if (link.hostname === hostname) linksToDownload.push({ link: link.href, type: resourceType });
     }
   });
 
@@ -47,7 +66,7 @@ const getLinksToDownload = ($, { hostname, href }) => {
 
 const replaceDomLinks = ($, url) => {
   const $elements = $('img, script, link');
-  const assetsDirectory = generateFileNameFromUrl(url.href, '_files');
+  const assetsDirectory = generatePageNameFromUrl(url.href, '_files');
 
   $elements.each((index, el) => {
     const link = $(el).attr('src') || $(el).attr('href');
@@ -72,14 +91,12 @@ const replaceDomLinks = ($, url) => {
 
 const downloadResource = (url) => {
   const name = formatFileName(url);
-  const resourceType = getResourceType(url); // 'image' or 'text'
 
   return axios
     .get(url, { responseType: 'arraybuffer'})
-    .then(({ status, data, headers }) => {
+    .then(({ status, data }) => {
       if (status === 200) {
-        const contentType = headers['content-type'];
-        return { name, data, contentType };
+        return { name, data };
       } else {
         throw new Error(`Failed to download resource. Status: ${response.status}`);
       }
@@ -104,19 +121,20 @@ const displayTaskStatus = (promisesList, urlsList) => {
 const downloadResources = (urlList, outputDirPath) => {
   return mkdir(outputDirPath, { recursive: true })
     .then(() => {
-      const taskList = urlList.map((url) => {
+      const taskList = urlList.map((resource) => {
         return new Promise((resolve) => {
-          downloadResource(url)
-            .then(({ name, data, contentType }) => {
-              const fileName = contentType === 'text/html' ? `${name}.html` : name;
+          const { link, type } = resource;
+          downloadResource(link)
+            .then(({ name, data }) => {
+              const fileName = type === 'html' ? `${formatFileName(name)}.html` : formatFileName(name);
               writeFile(path.join(outputDirPath, fileName), data)
-                .then(() => resolve({ url, status: 'success' }))
-                .catch(() => resolve({ url, status: 'failed' }));
+                .then(() => resolve({ url: link, status: 'success' }))
+                .catch(() => resolve({ url: link, status: 'failed' }));
             })
-            .catch(() => resolve({ url, status: 'failed' }));
+            .catch(() => resolve({ url: link, status: 'failed' }));
         });
       });
-      displayTaskStatus(taskList, urlList);
+      displayTaskStatus(taskList, urlList.map(resource => resource.link));
       return Promise.allSettled(taskList);
     })
     .then((results) => {
@@ -133,8 +151,8 @@ const pageLoader = (urlString, outputDirPath) => {
   }
 
   const url = new URL(urlString);
-  const sourceFilePath = path.join(outputDirPath, generateFileNameFromUrl(urlString, '.html'));
-  const dirPath = path.join(outputDirPath, generateFileNameFromUrl(urlString, '_files'));
+  const sourceFilePath = path.join(outputDirPath, generatePageNameFromUrl(urlString));
+  const dirPath = path.join(outputDirPath, generatePageNameFromUrl(urlString, '_files'));
 
   return fetchSourcePage(url)
     .then((html) => {

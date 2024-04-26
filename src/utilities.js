@@ -23,14 +23,16 @@ const formatFileName = (input) => {
   return `${symbolsReplacedUrl}${extension}`;
 };
 
-const generateFileNameFromUrl = (input, postfix = '') => {
+const generatePageNameFromUrl = (input, prefix = '.html') => {
   if (typeof input !== 'string') {
     throw new Error('Not a valid url string');
   }
 
-  const urlWithoutProtocol = input.replace(/^(https?:\/\/)?/, '');
+  const trimmedUrl = input.replace(/\/$/, '');
+  const urlWithoutProtocol = trimmedUrl.replace(/^(https?:\/\/)?/, '');
   const symbolsReplacedUrl = urlWithoutProtocol.replace(/[^a-zA-Z0-9]/g, '-');
-  return `${symbolsReplacedUrl}${postfix}`;
+
+  return `${symbolsReplacedUrl}${prefix}`;
 };
 
 const getResourceType = (url) => {
@@ -45,11 +47,11 @@ const getResourceType = (url) => {
   }
 
   return 'text';
-}
+};
 
 export {
   isValidUrl,
   formatFileName,
-  generateFileNameFromUrl,
+  generatePageNameFromUrl,
   getResourceType,
 };
