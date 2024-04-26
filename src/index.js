@@ -85,11 +85,9 @@ const fetchResource = (url) => {
     });
 };
 
-const writeResource = (filePath, data, link, resolve) => {
-  return writeFile(filePath, data)
-    .then(() => resolve({ url: link, status: 'success' }))
-    .catch(() => resolve({ url: link, status: 'failed' }));
-}
+const writeResource = (filePath, data, link, resolve) => writeFile(filePath, data)
+  .then(() => resolve({ url: link, status: 'success' }))
+  .catch(() => resolve({ url: link, status: 'failed' }));
 
 const displayTaskStatus = (promisesList, urlsList) => {
   const taskList = promisesList.map((promise, index) => ({
