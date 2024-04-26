@@ -169,7 +169,7 @@ const pageLoader = (urlString, outputDirPath = process.cwd()) => {
   .then((updatedDocument) => writeFile(sourceFilePath, updatedDocument))
   .then(() => sourceFilePath)
   .catch((e) => {
-    throw new e;
+    throw e;
   });
 };
 
