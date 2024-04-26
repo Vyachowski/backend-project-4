@@ -30,19 +30,19 @@ const fetchSourcePage = (url) => axios
   });
 
 const getResourceType = ($element) => {
+  const relAttribute = $element.attr('rel');
   switch ($element.prop('tagName').toLowerCase()) {
     case 'img':
       return 'image';
     case 'script':
       return 'script';
     case 'link':
-      const relAttribute = $element.attr('rel');
       if (relAttribute === 'stylesheet') {
         return 'css';
-      } else if (relAttribute === 'canonical') {
+      } if (relAttribute === 'canonical') {
         return 'html';
       }
-      break;
+      return 'unknown';
     default:
       return 'unknown';
   }
@@ -75,12 +75,10 @@ const replaceDomLinks = ($, url) => {
       if (targetLink.hostname === url.hostname) {
         if ($(el).attr('rel') === 'canonical') {
           $(el).attr('href', `${assetsDirectory}/${formatFileName(targetLink.href)}.html`);
+        } else if ($(el).attr('src')) {
+          $(el).attr('src', `${assetsDirectory}/${formatFileName(targetLink.href)}`);
         } else {
-          if ($(el).attr('src')) {
-            $(el).attr('src', `${assetsDirectory}/${formatFileName(targetLink.href)}`);
-          } else {
-            $(el).attr('href', `${assetsDirectory}/${formatFileName(targetLink.href)}`);
-          }
+          $(el).attr('href', `${assetsDirectory}/${formatFileName(targetLink.href)}`);
         }
       }
     }
@@ -93,13 +91,12 @@ const downloadResource = (url) => {
   const name = formatFileName(url);
 
   return axios
-    .get(url, { responseType: 'arraybuffer'})
+    .get(url, { responseType: 'arraybuffer' })
     .then(({ status, data }) => {
       if (status === 200) {
         return { name, data };
-      } else {
-        throw new Error(`Failed to download resource. Status: ${response.status}`);
       }
+      throw new Error(`Failed to download resource. Status: ${status}`);
     })
     .catch((error) => {
       throw error;
@@ -107,40 +104,32 @@ const downloadResource = (url) => {
 };
 
 const displayTaskStatus = (promisesList, urlsList) => {
-  const taskList = promisesList.map((promise, index) => {
-    return {
-      title: urlsList[index],
-      task: () => promise
-    }
-  });
+  const taskList = promisesList.map((promise, index) => ({
+    title: urlsList[index],
+    task: () => promise,
+  }));
   const tasks = new Listr(taskList, { concurrent: true });
 
-  tasks.run().catch(err => { console.error(err) });
+  tasks.run().catch((err) => { console.error(err); });
 };
 
-const downloadResources = (urlList, outputDirPath) => {
-  return mkdir(outputDirPath, { recursive: true })
-    .then(() => {
-      const taskList = urlList.map((resource) => {
-        return new Promise((resolve) => {
-          const { link, type } = resource;
-          downloadResource(link)
-            .then(({ name, data }) => {
-              const fileName = type === 'html' ? `${formatFileName(name)}.html` : formatFileName(name);
-              writeFile(path.join(outputDirPath, fileName), data)
-                .then(() => resolve({ url: link, status: 'success' }))
-                .catch(() => resolve({ url: link, status: 'failed' }));
-            })
+const downloadResources = (urlList, outputDirPath) => mkdir(outputDirPath, { recursive: true })
+  .then(() => {
+    const taskList = urlList.map((resource) => new Promise((resolve) => {
+      const { link, type } = resource;
+      downloadResource(link)
+        .then(({ name, data }) => {
+          const fileName = type === 'html' ? `${formatFileName(name)}.html` : formatFileName(name);
+          writeFile(path.join(outputDirPath, fileName), data)
+            .then(() => resolve({ url: link, status: 'success' }))
             .catch(() => resolve({ url: link, status: 'failed' }));
-        });
-      });
-      displayTaskStatus(taskList, urlList.map(resource => resource.link));
-      return Promise.allSettled(taskList);
-    })
-    .then((results) => {
-      return results.map((result) => result.value);
-    });
-};
+        })
+        .catch(() => resolve({ url: link, status: 'failed' }));
+    }));
+    displayTaskStatus(taskList, urlList.map((resource) => resource.link));
+    return Promise.allSettled(taskList);
+  })
+  .then((results) => results.map((result) => result.value));
 
 const pageLoader = (urlString, outputDirPath = process.cwd()) => {
   if (typeof urlString !== 'string' || !isValidUrl(urlString)) {
@@ -166,11 +155,11 @@ const pageLoader = (urlString, outputDirPath = process.cwd()) => {
 
       return htmlWithReplacedLinks;
     })
-  .then((updatedDocument) => writeFile(sourceFilePath, updatedDocument))
-  .then(() => sourceFilePath)
-  .catch((e) => {
-    throw e;
-  });
+    .then((updatedDocument) => writeFile(sourceFilePath, updatedDocument))
+    .then(() => sourceFilePath)
+    .catch((e) => {
+      throw e;
+    });
 };
 
 export default pageLoader;

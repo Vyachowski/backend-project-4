@@ -37,23 +37,8 @@ const generatePageNameFromUrl = (input, prefix = '.html') => {
   return `${symbolsReplacedUrl}${prefix}`;
 };
 
-const getResourceType = (url) => {
-  const fileTypes = {
-    image: new Set(['jpg', 'jpeg', 'png', 'gif']),
-    text: new Set(['css', 'js', 'txt']),
-  };
-  const urlExtension =  path.extname(url);
-
-  for (let type in fileTypes) {
-    if (fileTypes[type].has(urlExtension)) return type;
-  }
-
-  return 'text';
-};
-
 export {
   isValidUrl,
   formatFileName,
   generatePageNameFromUrl,
-  getResourceType,
 };

@@ -1,7 +1,7 @@
 import {
   isValidUrl,
   formatFileName,
-  generateFileNameFromUrl,
+  generatePageNameFromUrl,
 } from '../src/utilities.js';
 
 test('Validate URL: valid url', () => {
@@ -30,9 +30,9 @@ test('Format filename: wrong argment type', () => {
 
 test('Generate filename from URL: valid url', () => {
   const testExtension = '.pug';
-  expect(generateFileNameFromUrl('https://ru.hexlet.io/courses', testExtension)).toBe('ru-hexlet-io-courses.pug');
+  expect(generatePageNameFromUrl('https://ru.hexlet.io/courses', testExtension)).toBe('ru-hexlet-io-courses.pug');
 });
 
 test('Generate filename from URL: wrong argment type', () => {
-  expect(() => generateFileNameFromUrl(['https://ru.hexlet.io/courses'])).toThrow('Not a valid url string');
+  expect(() => generatePageNameFromUrl(['https://ru.hexlet.io/courses'])).toThrow('Not a valid url string');
 });
