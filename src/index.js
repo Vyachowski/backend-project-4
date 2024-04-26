@@ -13,7 +13,7 @@ import {
   getResourceType,
 } from './utilities.js';
 
-const fetchHtmlPage = (url) => axios
+const fetchSourcePage = (url) => axios
   .get(url)
   .then((res) => {
     if (!res.data) {
@@ -121,10 +121,10 @@ const pageLoader = (url, outputDirPath) => {
     throw new Error(`An output directory path should be a valid string, for example: ${homedir}`);
   }
 
-  const filePath = path.join(outputDirPath, generateFileNameFromUrl(url, '.html'));
+  const sourceFilePath = path.join(outputDirPath, generateFileNameFromUrl(url, '.html'));
   const dirPath = path.join(outputDirPath, generateFileNameFromUrl(url, '_files'));
 
-  return fetchHtmlPage(url)
+  return fetchSourcePage(url)
     .then((htmlString) => {
       const { localDom, urlList } = replaceDomLinks(htmlString, url);
 
@@ -134,7 +134,7 @@ const pageLoader = (url, outputDirPath) => {
 
       return localDom;
     })
-  .then((updatedDocument) => writeFile(filePath, updatedDocument))
+  .then((updatedDocument) => writeFile(sourceFilePath, updatedDocument))
   .then(() => filePath);
 };
 
